@@ -1,0 +1,19 @@
+# Core dependencies
+numpy==1.26.4
+pandas==2.2.2
+scikit-learn==1.5.2
+joblib==1.4.2
+
+# Deep learning
+tensorflow==2.15.0
+
+# Visualization (optional for debugging)
+matplotlib==3.9.2
+seaborn==0.13.2
+
+# Web frameworks
+Flask==3.0.3
+flask-cors==4.0.0
+fastapi==0.111.0
+uvicorn==0.30.1
+gunicorn==21.2.0  # 🔹 use 21.x — v23 can cause subprocess spawn issues on Render
