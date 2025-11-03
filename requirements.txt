@@ -6,7 +6,7 @@ joblib==1.4.2
 optree==0.11.0
 
 # Deep learning
-tensorflow==2.15.0
+tensorflow==2.20.0
 
 # Visualization (optional for debugging)
 matplotlib==3.9.2
