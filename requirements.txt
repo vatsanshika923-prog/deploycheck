@@ -1,6 +1,6 @@
 # Core dependencies
 numpy==1.26.4
-pandas==2.2.2
+pandas==2.2.3
 scikit-learn==1.5.2
 joblib==1.4.2
 optree==0.11.0
