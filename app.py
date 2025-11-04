@@ -1,13 +1,23 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-import requests
+import joblib
+import numpy as np
+import traceback
 
-app = FastAPI(title="CommerceSense FastAPI Gateway")
+# Initialize FastAPI
+app = FastAPI(title="LSTM Price/Demand Forecasting API 🚀")
 
-# Replace with your actual Flask API URL
-FLASK_MODEL_URL = "https://your-flask-model.onrender.com/predict"
+# ✅ Load trained model
+try:
+    model = joblib.load("lstm_model.pkl")
+    print("✅ Model loaded successfully!")
+except Exception as e:
+    print("❌ Error loading model:", e)
+    model = None
 
-class InputData(BaseModel):
+
+# 🧾 Define input data structure
+class ModelInput(BaseModel):
     Selling_Price: float
     Discount_Percentage: float
     Stock_Availability: float
@@ -16,32 +26,38 @@ class InputData(BaseModel):
     Season_Summer: int
     Season_Winter: int
 
+
+# 🏠 Root route
 @app.get("/")
 def home():
-    return {"message": "FastAPI Gateway is running 🚀"}
+    return {"message": "LSTM Forecasting API is running successfully 🚀"}
 
+
+# 🔮 Prediction route
 @app.post("/predict")
-def get_prediction(data: InputData):
+def predict(data: ModelInput):
     try:
-        payload = {
-            "input": [
-                data.Selling_Price,
-                data.Discount_Percentage,
-                data.Stock_Availability,
-                data.Purchase_Frequency,
-                data.Quantity_Sold_Lagged,
-                data.Season_Summer,
-                data.Season_Winter
-            ]
-        }
+        if model is None:
+            raise HTTPException(status_code=500, detail="Model not loaded")
 
-        response = requests.post(FLASK_MODEL_URL, json=payload)
-        if response.status_code != 200:
-            raise HTTPException(status_code=500, detail=f"Flask API error: {response.text}")
+        # Convert input into array format
+        input_data = np.array([[
+            data.Selling_Price,
+            data.Discount_Percentage,
+            data.Stock_Availability,
+            data.Purchase_Frequency,
+            data.Quantity_Sold_Lagged,
+            data.Season_Summer,
+            data.Season_Winter
+        ]])
 
-        result = response.json()
-        return {"prediction": result.get("prediction", [])}
+        # Make prediction
+        prediction = model.predict(input_data)
+
+        return {"prediction": float(prediction[0])}
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
+        return {
+            "error": str(e),
+            "trace": traceback.format_exc()
+        }
